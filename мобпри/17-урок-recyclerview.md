@@ -180,6 +180,9 @@ public class BookViewHolder extends RecyclerView.ViewHolder {
 
     public BookViewHolder(View itemView) {
         super(itemView);
+
+        // находим в разметке ОДНОЙ строчки наши текствьюшки
+        // и запоминаем их
         textTitle = itemView.findViewById(R.id.text_title);
         textAuthor = itemView.findViewById(R.id.text_author);
     }
@@ -192,27 +195,34 @@ public class BookViewHolder extends RecyclerView.ViewHolder {
 public class BookAdapter extends RecyclerView.Adapter<BookViewHolder> {
     private List<Book> books;
 
+    // в конструкторе адаптера принимаем список книг
     public BookAdapter(List<Book> books) {
         this.books = books;
     }
 
+    // это метод который создает СТРОЧКИ нашего списка
     @Override
     public BookViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // создаем объект VIEW по нашему XML файлу
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_book, parent, false);
+
+        // и сразу привязываем его к нашему "ДЕРЖАТЕЛЮ" (HOLDER)
         return new BookViewHolder(view);
     }
 
+    // метод который привязывает элемент к СТРОЧКЕ (или же к Holder)
     @Override
     public void onBindViewHolder(BookViewHolder holder, int position) {
-        Book book = books.get(position);
-        holder.textTitle.setText(book.getTitle());
-        holder.textAuthor.setText(book.getAuthor());
+        Book book = books.get(position); // Берем книгу по номеру в списке
+        holder.textTitle.setText(book.getTitle()); // достаем из него название
+        holder.textAuthor.setText(book.getAuthor()); // и автора тоже
     }
 
+    // метод который возвращает количество элементов в списке
     @Override
     public int getItemCount() {
-        return books.size();
+        return books.size(); 
     }
 }
 ```
@@ -229,14 +239,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        // 6000 раз добавляем книги в список
         for (int i = 0; i < 6000; i++) {
             loadData();
         }
-        BookAdapter adapter = new BookAdapter(books);
+        BookAdapter adapter = new BookAdapter(books); // создаем адаптер и помещаем в него список
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view); // находим на экране рекуклервью
+        recyclerView.setLayoutManager(new LinearLayoutManager(this)); // делаем вертикальную прокрутку
+        recyclerView.setAdapter(adapter); // привязываем наш адаптер к списку
     }
 
     private void loadData() {
