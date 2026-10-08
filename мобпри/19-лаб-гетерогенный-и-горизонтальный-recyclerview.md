@@ -36,12 +36,16 @@ public int getItemViewType(int position) {
 @Override
 public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
+    // проверяем тип нашей карточки
     if (viewType == TYPE_IMPORTANT) {
+        // если один тип
         View view = inflater.inflate(R.layout.item_important, parent, false);
-        return new ImportantViewHolder(view);
+        return new ImportantViewHolder(view); // один ХОЛДЕР
     } else {
+        // если другой
         View view = inflater.inflate(R.layout.item_normal, parent, false);
-        return new NormalViewHolder(view);
+        return new NormalViewHolder(view); // другой ХОЛДЕР
     }
 }
 ```
