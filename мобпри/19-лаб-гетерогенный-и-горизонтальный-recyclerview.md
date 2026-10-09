@@ -20,32 +20,152 @@
 
 #### Гетерогенный список
 
-В гетерогенном списке элементы могут выглядеть по-разному. Для этого нужно:
+Представим приложение с лентой новостей.
 
-1. Определить типы элементов (например, `TYPE_NORMAL`, `TYPE_IMPORTANT`) ([***как создать разные типы можно вспомнить тут***](https://github.com/aiinty/labs/blob/main/мобпри/15-урок-адаптеры-назначение-адаптеров.md))
-2. Переопределить `getItemViewType(int position)` - возвращает тип элемента
-3. В `onCreateViewHolder` создавать разные макеты в зависимости от типа
-4. В `onBindViewHolder` заполнять данными в зависимости от типа
+Обычная новость **содержит заголовок и текст**. Важная новость дополнительно **содержит изображение и специальную отметку**.
+
+Например:
+
+* Обычная новость: "Сегодня солнечно" и краткий текст
+* Важная новость: "В городе открыли новый парк", текст, изображение и отметка "Важно"
+
+Обе записи являются новостями и находятся в одном списке, но выглядят по-разному.
+
+Такой список называется ***гетерогенным***. Это означает, что в нём могут находиться элементы разных типов, каждый со своим внешним видом.
+
+#### Что нужно изменить в программе?
+
+Чтобы создать такой список, недостаточно просто добавить разные записи в коллекцию. **Адаптер должен понимать**, как отображать каждую запись.
+
+##### Шаг 1. Изменить модель
+
+Раньше модель новости могла хранить только заголовок и текст. Теперь ей нужно хранить дополнительную информацию: например, является ли новость важной и какое изображение нужно показать.
+
+```java
+public class News {
+    public String Title;        // заголовок
+    public String Text;         // текст новости
+    public int ImageId;         // какая у нас может быть картинка
+    public boolean Important;   // ВАЖНАЯ (true) или НЕТ (false)
+
+    public News(String title, String text, int imageId, boolean important) {
+        this.Title = title;
+        this.Text = text;
+        this.ImageId = imageId;
+        this.Important = important;
+    }
+}
+```
+
+Например, создание двух записей:
+
+```java
+News news1 = new News(
+    "Сегодня солнечно", // заголовок
+    "Ожидается ясная погода.", // текст
+    0,  // 0 потому что картинка не нужна
+    false // обычная новость
+);
+
+News news2 = new News(
+    "Открыли новый парк", // заголовок
+    "В городе появилось новое место отдыха.", // текст
+    R.drawable.news_picture, // картинка
+    true // важная новость
+);
+```
+
+##### Шаг 2. Создать разные макеты элементов
+
+Для обычной новости создайте макет `item_news.xml`. В нём разместите заголовок и текст.
+
+Для важной новости создайте макет `item_news_important.xml`. В нём разместите заголовок, текст, изображение и, например, надпись "Важно".
+
+Макеты могут содержать разные элементы и отличаться оформлением.
+
+##### Шаг 3. Создать ViewHolder для каждого макета
+
+Каждому макету нужен свой `ViewHolder`, который хранит ссылки на его элементы интерфейса.
+
+Например у нас получается:
+
+* `NewsViewHolder` - для обычной новост
+* `ImportantNewsViewHolder` - для важной новости.
+
+Почему нельзя всегда использовать один и тот же ViewHolder? **У разных макетов может быть разный набор элементов.** Например, у обычной новости нет изображения, а у важной оно есть.
+
+Вспомните предыдущие лабораторные: ViewHolder нужен, чтобы хранить ссылки на элементы интерфейса и не искать их заново при каждом обновлении строки.
+
+##### Шаг 4. Научить адаптер создавать нужный макет
+
+У адаптера есть метод `getItemViewType(...)`. Он сообщает RecyclerView, к какому типу относится элемент с указанной позицией.
+
+Например:
 
 ```java
 @Override
 public int getItemViewType(int position) {
-    return items.get(position).getType();   // возвращаем тип элемента по его позиции
-}
+    News news = newsList.get(position);
 
+    if (news.isImportant()) {
+        return 1;
+    }
+
+    return 0;
+}
+```
+
+Здесь:
+
+* position - позиция новости в списке
+* newsList.get(position) - получение новости по этой позиции
+* 1 - обозначает что это **ВАЖНАЯ** новость
+* 0 - обозначает что это **ОБЫЧНАЯ** новости
+
+Таким образом, адаптер определяет тип **не по внешнему виду элемента**, *а по данным модели*.
+
+В методе `onCreateViewHolder()` нужно проверить полученный `viewType` и создать соответствующий `ViewHolder`:
+
+```java
 @Override
 public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
-    // проверяем тип нашей карточки
-    if (viewType == TYPE_IMPORTANT) {
-        // если один тип
-        View view = inflater.inflate(R.layout.item_important, parent, false);
-        return new ImportantViewHolder(view); // один ХОЛДЕР
+    // если тип РАВЕН 1 (то есть ВАЖНАЯ новость)
+    if (viewType == 1) {
+        // Создаем ВАЖНУЮ строчку
+        View view = inflater.inflate(R.layout.item_news_important, parent, false);
+        return new ImportantNewsViewHolder(view);
+    }
+
+    // иначе мы создаем ОБЫЧНУЮ
+    View view = inflater.inflate(R.layout.item_news, parent, false);
+    return new NewsViewHolder(view);
+}
+```
+
+viewType определяет, какой макет нужно создать. После создания ViewHolder адаптер должен ещё заполнить его данными - это делается в onBindViewHolder().
+
+##### Шаг 5. Научить адаптер заполнять нужный макет
+
+Внутри `onBindViewHolder()` необходимо учитывать тип `ViewHolder` и заполнять соответствующие поля. Например, для обычной новости достаточно заголовка и текста, а для важной дополнительно устанавливается изображение:
+
+```java
+@Override
+public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    News news = newsList.get(position);
+    // проверяем в if ТИП нашей строчки
+    if (holder instanceof ImportantNewsViewHolder) {
+        // если строчка ВАЖНАЯ
+        ImportantNewsViewHolder vh = (ImportantNewsViewHolder) holder;
+        vh.textTitle.setText(news.getTitle());
+        vh.textText.setText(news.getText());
+        vh.imageNews.setImageResource(news.getImageId()); 
     } else {
-        // если другой
-        View view = inflater.inflate(R.layout.item_normal, parent, false);
-        return new NormalViewHolder(view); // другой ХОЛДЕР
+        // если тип ДРУГОЙ
+        NewsViewHolder vh = (NewsViewHolder) holder;
+        vh.textTitle.setText(news.getTitle());
+        vh.textText.setText(news.getText());
     }
 }
 ```
@@ -58,54 +178,6 @@ public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType
 LinearLayoutManager layoutManager = new LinearLayoutManager(this);
 layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
 recyclerView.setLayoutManager(layoutManager);
-```
-
-#### Сетка
-
-Для отображения элементов в виде сетки используйте `GridLayoutManager`:
-
-```java
-recyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // 2 колонки
-```
-
-#### Работа с изображениями
-
-**Шаг 1. Добавьте изображение в ресурсы**
-
-1. Скачайте или создайте изображение (например, `ic_news.png`)
-2. Поместите его в папку `res/drawable/`
-3. Изображение будет доступно как `R.drawable.ic_news`
-
-**Шаг 2. Добавьте ImageView в макет**
-
-```xml
-<ImageView
-    android:id="@+id/image_news"
-    android:layout_width="match_parent"
-    android:layout_height="150dp"
-    android:scaleType="centerCrop" />
-```
-
-**Шаг 3. Привяжите изображение в адаптере**
-
-```java
-@Override
-public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-    News news = newsList.get(position);
-    // проверяем в if ТИП нашей строчки
-    if (holder instanceof ImportantViewHolder) {
-        // если тип строчки - ImportantViewHolder
-        ImportantViewHolder vh = (ImportantViewHolder) holder;
-        vh.textTitle.setText(news.getTitle());
-        vh.textText.setText(news.getText());
-        vh.imageNews.setImageResource(R.drawable.ic_news); // вот тут мы и закидываем изображение
-    } else {
-        // если тип ДРУГОЙ
-        NormalViewHolder vh = (NormalViewHolder) holder;
-        vh.textTitle.setText(news.getTitle());
-        vh.textText.setText(news.getText());
-    }
-}
 ```
 
 ---
@@ -122,12 +194,11 @@ public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
 Требования к любой теме:
 
-- Создайте модель данных с типом элемента (например, `TYPE_NORMAL`, `TYPE_IMPORTANT`)
-- Создайте макеты для каждого типа элементов
-- Создайте ViewHolder для каждого типа элементов
-- Создайте адаптер с методом `getItemViewType(int position)`
-- Реализуйте условную логику отображения (по теме)
-- Добавьте обработку клика на элемент списка (просто Toast)
+* Создайте модель данных с типом элемента
+* Создайте макеты для каждого типа элементов
+* Создайте `ViewHolder` для каждого типа элементов
+* Создайте адаптер с методом `getItemViewType(int position)`
+* Реализуйте условную логику отображения (по теме)
 
 #### Подсказки
 
@@ -156,5 +227,4 @@ holder.itemView.setOnClickListener(v -> {
 1. Приложение отображает список с разными типами элементов
 2. Адаптер корректно определяет тип элемента и использует нужный макет
 3. Реализована условная логика отображения
-4. Реализована обработка клика на элемент списка (Toast)
-5. Все текстовые данные вынесены в `strings.xml`
+4. Все текстовые данные вынесены в `strings.xml`
