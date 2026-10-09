@@ -43,17 +43,27 @@
 
 ```java
 public class News {
-    public String Title;        // заголовок
-    public String Text;         // текст новости
-    public int ImageId;         // какая у нас может быть картинка
-    public boolean Important;   // ВАЖНАЯ (true) или НЕТ (false)
+    private String title;        // заголовок
+    private String text;         // текст новости
+    private int imageId;         // какая у нас может быть картинка
+    private boolean important;   // ВАЖНАЯ (true) или НЕТ (false)
 
     public News(String title, String text, int imageId, boolean important) {
-        this.Title = title;
-        this.Text = text;
-        this.ImageId = imageId;
-        this.Important = important;
+        this.title = title;
+        this.text = text;
+        this.imageId = imageId;
+        this.important = important;
     }
+
+    // тут так же get-методы дальше, например:
+    public String getTitle() {
+        return this.title;
+    }
+
+    public boolean isImportant() {
+        return this.important;
+    }
+    // и тд ...
 }
 ```
 
@@ -92,9 +102,7 @@ News news2 = new News(
 * `NewsViewHolder` - для обычной новост
 * `ImportantNewsViewHolder` - для важной новости.
 
-Почему нельзя всегда использовать один и тот же ViewHolder? **У разных макетов может быть разный набор элементов.** Например, у обычной новости нет изображения, а у важной оно есть.
-
-Вспомните предыдущие лабораторные: ViewHolder нужен, чтобы хранить ссылки на элементы интерфейса и не искать их заново при каждом обновлении строки.
+Почему нельзя всегда использовать один и тот же `ViewHolder`? **У разных макетов может быть разный набор элементов.** Например, у обычной новости нет изображения, а у важной оно есть.
 
 ##### Шаг 4. Научить адаптер создавать нужный макет
 
@@ -117,8 +125,8 @@ public int getItemViewType(int position) {
 
 Здесь:
 
-* position - позиция новости в списке
-* newsList.get(position) - получение новости по этой позиции
+* `position` - позиция новости в списке
+* `newsList.get(position)` - получение новости по этой позиции
 * 1 - обозначает что это **ВАЖНАЯ** новость
 * 0 - обозначает что это **ОБЫЧНАЯ** новости
 
@@ -144,7 +152,7 @@ public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType
 }
 ```
 
-viewType определяет, какой макет нужно создать. После создания ViewHolder адаптер должен ещё заполнить его данными - это делается в onBindViewHolder().
+`viewType` определяет, какой макет нужно создать. После создания `ViewHolder` адаптер должен ещё заполнить его данными - это делается в `onBindViewHolder()`.
 
 ##### Шаг 5. Научить адаптер заполнять нужный макет
 
