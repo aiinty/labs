@@ -1,0 +1,138 @@
+services:
+  yaade:
+    image: esperotech/yaade:latest
+    restart: always
+    ports:
+      - "9339:9339"
+    volumes:
+      - yaade_data:/app/data
+    environment:
+      YAADE_ADMIN_USERNAME: admin
+
+  team1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pocketbase:oat
+    container_name: pb-team1
+    restart: always
+    ports:
+      - "8081:8080"
+    volumes:
+      - pb_teams:/pb_data
+    environment:
+      ADMIN_EMAIL: team1@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team1
+
+  team2:
+    extends:
+      file: team.yml
+      service: team
+    container_name: pb-team2
+    ports:
+      - "8082:8080"
+    environment:
+      ADMIN_EMAIL: team2@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team2
+
+  team3:
+    extends:
+      file: team.yml
+      service: team
+    container_name: pb-team3
+    ports:
+      - "8083:8080"
+    environment:
+      ADMIN_EMAIL: team3@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team3
+
+  team4:
+    extends:
+      file: team.yml
+      service: team
+    container_name: pb-team4
+    ports:
+      - "8084:8080"
+    environment:
+      ADMIN_EMAIL: team4@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team4
+        
+  team5:
+    extends:
+      file: team.yml
+      service: team
+    container_name: pb-team5
+    ports:
+      - "8085:8080"
+    environment:
+      ADMIN_EMAIL: team5@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team5
+        
+  team6:
+    extends:
+      file: team.yml
+      service: team
+    container_name: pb-team6
+    ports:
+      - "8086:8080"
+    environment:
+      ADMIN_EMAIL: team6@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team6
+        
+  team7:
+    extends:
+      file: team.yml
+      service: team
+    container_name: pb-team7
+    ports:
+      - "8087:8080"
+    environment:
+      ADMIN_EMAIL: team7@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team7
+        
+  team8:
+    extends:
+      file: team.yml
+      service: team
+    container_name: pb-team8
+    ports:
+      - "8088:8080"
+    environment:
+      ADMIN_EMAIL: team8@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team8
+        
+  team9:
+    extends:
+      file: team.yml
+      service: team
+    container_name: pb-team9
+    ports:
+      - "8089:8080"
+    environment:
+      ADMIN_EMAIL: team9@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team9
+        
+  team10:
+    extends:
+      file: team.yml
+      service: team
+    container_name: pb-team10
+    ports:
+      - "8090:8080"
+    environment:
+      ADMIN_EMAIL: team10@oat.ru
+      ADMIN_PASSWORD: "admin12345"
+      PB_DATA_DIR: /pb_data/team10
+        
+volumes:
+  pb_teams:
+  yaade_data:

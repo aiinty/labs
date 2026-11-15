@@ -1,0 +1,7 @@
+services:
+  team:
+    image: pocketbase:oat
+    pull_policy: build
+    restart: always
+    volumes:
+      - pb_teams:/pb_data
