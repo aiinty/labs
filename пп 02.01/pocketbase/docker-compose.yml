@@ -1,14 +1,4 @@
 services:
-  yaade:
-    image: esperotech/yaade:latest
-    restart: always
-    ports:
-      - "9339:9339"
-    volumes:
-      - yaade_data:/app/data
-    environment:
-      YAADE_ADMIN_USERNAME: admin
-
   team1:
     build:
       context: .
@@ -135,4 +125,3 @@ services:
         
 volumes:
   pb_teams:
-  yaade_data:
